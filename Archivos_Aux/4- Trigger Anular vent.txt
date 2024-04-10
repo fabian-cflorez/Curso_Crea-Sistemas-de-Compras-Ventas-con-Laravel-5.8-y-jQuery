@@ -1,0 +1,24 @@
+//CREACION DE FUNCION EN QUERY TOOL
+
+CREATE OR REPLACE FUNCTION updStockVentaAnular() RETURNS TRIGGER
+AS
+$$
+BEGIN
+	UPDATE productos AS pro
+	SET stock = pro.stock + dv.cantidad
+	FROM detalle_ventas as dv
+	WHERE dv.idproducto = pro.id
+	AND dv.idventa = NEW.id;
+	RETURN NEW;
+END
+$$
+LANGUAGE plpgsql;
+
+
+//CREACION DE TRIGGER EN QUERY TOOL
+
+CREATE TRIGGER "tr_updStockVentaAnular"
+	AFTER UPDATE
+	ON public.ventas
+	FOR EACH ROW
+	EXECUTE FUNCTION public.updStockVentaAnular();

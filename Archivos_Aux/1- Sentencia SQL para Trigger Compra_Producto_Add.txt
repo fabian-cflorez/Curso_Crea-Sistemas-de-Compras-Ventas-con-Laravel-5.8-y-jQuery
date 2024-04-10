@@ -1,0 +1,29 @@
+//CREACION FUNCIÓN PARA TRIGGER EN QUERY TOOL
+
+CREATE FUNCTION updStockCompra() RETURNS TRIGGER
+AS
+$$
+BEGIN
+	UPDATE productos SET stock = stock + NEW.cantidad
+	WHERE productos.id = NEW.idproducto;
+	RETURN NEW;
+END
+$$
+LANGUAGE plpgsql;
+
+
+//CREACION TRIGGER EN QUERY TOOL
+
+CREATE TRIGGER "TR_updStockCompra"
+	AFTER INSERT
+	ON public.detalle_compras
+	FOR EACH ROW
+	EXECUTE FUNCTION public.updstockcompra();
+
+
+= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
+
+
+create trigger TR_updStockCompra AFTER INSERT ON detalle_compra
+for each row
+execute procedure updStockCompra();

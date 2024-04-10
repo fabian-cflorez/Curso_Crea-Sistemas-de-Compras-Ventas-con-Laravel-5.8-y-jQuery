@@ -1,0 +1,56 @@
+= = = = = = = = = START OPCION 1
+CREATE OR REPLACE FUNCTION updStockCompraAnular() RETURNS TRIGGER
+AS
+$$
+BEGIN
+	UPDATE productos as pro
+	SET stock = pro.stock - de_co.cantidad
+	FROM detalle_compras as de_co
+	WHERE de_co.idproducto = pro.id;
+	RETURN NEW;
+END
+$$
+LANGUAGE plpgsql;
+= = = = = = = = = END OPCION 1
+
+= = = = = = = = = START OPCION 2 -> CONFIGURADA (FUNCIONÓ EN LAS PRUEBAS)
+//CREACION DE FUNCION EN QUERY TOOL
+CREATE OR REPLACE FUNCTION updStockCompraAnular() RETURNS TRIGGER
+AS
+$$
+BEGIN
+	UPDATE productos as pro
+	SET stock = pro.stock - de_co.cantidad
+	FROM detalle_compras as de_co
+	WHERE de_co.idproducto = pro.id
+	AND de_co.idcompra = NEW.id;
+	RETURN NEW;
+END
+$$
+LANGUAGE plpgsql;
+= = = = = = = = = END OPCION 2
+
+= = = = = = = = = START OPCION 3 -> SIEMPRE DIÓ ERROR
+CREATE FUNCTION updStockCompraAnular() RETURNS TRIGGER
+AS
+$$
+BEGIN
+	UPDATE productos
+	INNER JOIN detalle_compras
+	ON detalle_compras.idproducto = productos.id
+	AND detalle_compras.idcompra = NEW.id
+	SET stock = productos.stock - detalle_compras.cantidad;
+	RETURN NEW;
+END
+$$
+LANGUAGE plpgsql;
+= = = = = = = = = END OPCION 3
+
+
+
+//CREACION TRIGGER EN QUERY TOOL
+CREATE TRIGGER "TR_updStockCompraAnular"
+	AFTER UPDATE
+	ON public.compras
+	FOR EACH ROW
+	EXECUTE FUNCTION public.updStockCompraAnular();
